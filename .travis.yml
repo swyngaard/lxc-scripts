@@ -4,6 +4,6 @@ dist: trusty
 before_script:
     - echo "deb http://archive.ubuntu.com/ubuntu trusty-backports main" | sudo tee -a /etc/apt/sources.list
     - sudo apt-get -qq update
-    - sudo apt-get install --no-install-recommends -t trusty-backports lxc python3-lxc
+    - sudo apt-get install --no-install-recommends -t trusty-backports -y lxc python3-lxc
 
 script: sudo python3 postgresql.py
