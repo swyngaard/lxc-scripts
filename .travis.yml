@@ -20,7 +20,7 @@ before_script:
     - echo "lxc.id_map = g 0 100000 65536" | sudo tee -a /etc/lxc/default.conf
     - echo -e "/usr/lib/python3/dist-packages\n/usr/lib/python3/dist-packages/lxc" | tee -a $(pip --version | cut -d ' ' -f 4)/lxc.pth
     - cat /etc/sub?id
-    - pip install git+ssh://git@github.com/lxc/lxc.git#subdirectory=src/python-lxc
+    - pip install git+https//github.com/lxc/lxc.git#subdirectory=src/python-lxc
     - sudo service lxc restart
     - ls /usr/lib/python3/dist-packages/lxc
     - mkdir -p $HOME/.config/lxc
