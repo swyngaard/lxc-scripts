@@ -2,7 +2,7 @@ sudo: required
 dist: trusty
 
 env:
-    - LD_LIBRARY_PATH=/usr/lib/python3/dist-packages:$LD_LIBRARY_PATH
+    - LD_LIBRARY_PATH=/usr/lib/python3/dist-packages:/usr/lib/python3/dist-packages/lxc:$LD_LIBRARY_PATH
 
 language: python
 python:
@@ -18,7 +18,7 @@ before_script:
     - echo "$USER veth lxcbr0 10" | sudo tee -a /etc/lxc/lxc-usernet
     - echo "lxc.id_map = u 0 100000 65536" | sudo tee -a /etc/lxc/default.conf
     - echo "lxc.id_map = g 0 100000 65536" | sudo tee -a /etc/lxc/default.conf
-    - echo "/usr/lib/python3/dist-packages" | tee -a $(pip --version | cut -d ' ' -f 4)/lxc.pth
+    - echo -e "/usr/lib/python3/dist-packages\n/usr/lib/python3/dist-packages/lxc" | tee -a $(pip --version | cut -d ' ' -f 4)/lxc.pth
     - cat /etc/sub?id
     - sudo service lxc restart
     - ls /usr/lib/python3/dist-packages/lxc
