@@ -3,7 +3,6 @@ dist: trusty
 
 language: python
 python:
-    - "3.4"
     - "3.5"
 
 env:
@@ -19,5 +18,8 @@ before_script:
     - sudo service lxc restart
     - mkdir -p $HOME/.config/lxc
     - cp /etc/lxc/default.conf $HOME/.config/lxc/
+    - dpkg -L python3-lxc
+    - ls /home/travis/virtualenv/python3.5.0/lib/python3.5/site-packages
+    - ls /usr/lib/python3/dist-packages
 
 script: ./postgresql.py
