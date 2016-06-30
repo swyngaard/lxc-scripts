@@ -15,7 +15,7 @@ before_script:
     - echo "$USER veth lxcbr0 10" | sudo tee -a /etc/lxc/lxc-usernet
     - echo "lxc.id_map = u 0 100000 65536" | sudo tee -a /etc/lxc/default.conf
     - echo "lxc.id_map = g 0 100000 65536" | sudo tee -a /etc/lxc/default.conf
-    - echo "/usr/lib/python3/dist-packages" | tee -a $(pip --version | cut -d ' ' -f 4)/lxc.pth
+    - echo -e "/usr/lib/python3/dist-packages\n/usr/lib/python3/dist-packages/_lxc-0.1.egg-info" | tee -a $(pip --version | cut -d ' ' -f 4)/lxc.pth
     - sudo service lxc restart
     - mkdir -p $HOME/.config/lxc
     - cp /etc/lxc/default.conf $HOME/.config/lxc/
