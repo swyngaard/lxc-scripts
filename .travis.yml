@@ -2,7 +2,7 @@ sudo: required
 dist: trusty
 
 env:
-    - PYTHONPATH=/usr/lib/python3/dist-packages
+    - PYTHONPATH=/usr/lib/python3/dist-packages:$PYTHONPATH
 
 before_script:
     - echo "deb http://archive.ubuntu.com/ubuntu trusty-backports main" | sudo tee -a /etc/apt/sources.list
@@ -15,4 +15,4 @@ before_script:
     - mkdir -p $HOME/.config/lxc
     - cp /etc/lxc/default.conf $HOME/.config/lxc/
 
-script: python3 postgresql.py
+script: ./postgresql.py
