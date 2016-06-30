@@ -4,6 +4,12 @@ dist: trusty
 before_script:
     - echo "deb http://archive.ubuntu.com/ubuntu trusty-backports main" | sudo tee -a /etc/apt/sources.list
     - sudo apt-get -qq update
-    - sudo apt-get install --no-install-recommends -t trusty-backports -y lxc python3-lxc
+    - sudo apt-get install -t trusty-backports -y lxc python3-lxc
+    - echo "$USER veth lxcbr0 10" | sudo tee -a /etc/lxc/lxc-usernet
+    - echo "lxc.id_map = u 0 100000 65536" | sudo tee -a /etc/lxc/default.conf
+    - echo "lxc.id_map = g 0 100000 65536" | sudo tee -a /etc/lxc/default.conf
+    - sudo service lxc restart
+    - mkdir -p $HOME/.config/lxc
+    - cp /etc/lxc/default.conf $HOME/.config/lxc/
 
-script: sudo python3 postgresql.py
+script: python3 postgresql.py
