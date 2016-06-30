@@ -1,6 +1,9 @@
 sudo: required
 dist: trusty
 
+env:
+    - PYTHONPATH=/usr/lib/python3/dist-packages
+
 before_script:
     - echo "deb http://archive.ubuntu.com/ubuntu trusty-backports main" | sudo tee -a /etc/apt/sources.list
     - sudo apt-get -qq update
