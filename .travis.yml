@@ -8,23 +8,17 @@ python:
     - "3.4"
     - "3.5"
 
-env:
-  global:
-    - PYTHONPATH=$PYTHONPATH:/usr/lib/python3/dist-packages
-
 before_script:
     - echo "deb http://archive.ubuntu.com/ubuntu trusty-backports main" | sudo tee -a /etc/apt/sources.list
     - sudo apt-get -qq update
-    - sudo apt-get install -t trusty-backports -y lxc python3-lxc
+    - sudo apt-get install -t trusty-backports -y lxc python3-lxc virtualenvwrapper
     - echo "$USER veth lxcbr0 10" | sudo tee -a /etc/lxc/lxc-usernet
     - echo "lxc.id_map = u 0 100000 65536" | sudo tee -a /etc/lxc/default.conf
     - echo "lxc.id_map = g 0 100000 65536" | sudo tee -a /etc/lxc/default.conf
+    - add2virtualenv /usr/lib/python3/dist-packages
     - sudo service lxc restart
     - mkdir -p $HOME/.config/lxc
     - cp /etc/lxc/default.conf $HOME/.config/lxc/
-    - cp -r /usr/lib/python3/dist-packages/lxc /home/travis/virtualenv/python3.5.0/lib/python3.5/site-packages/
-    - cp /usr/lib/python3/dist-packages/_lxc* /home/travis/virtualenv/python3.5.0/lib/python3.5/site-packages/
     - python -m site
-    - python --version
 
-script: ./postgresql.py
+script: python postgresql.py
