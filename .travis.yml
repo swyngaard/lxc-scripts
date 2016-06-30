@@ -1,6 +1,11 @@
 sudo: required
 dist: trusty
 
+language: python
+python:
+    - "3.4"
+    - "3.5"
+
 env:
     - PYTHONPATH=/usr/lib/python3/dist-packages:$PYTHONPATH
 
