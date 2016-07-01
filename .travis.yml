@@ -1,13 +1,8 @@
 sudo: required
 dist: trusty
 
-env:
-    - LD_LIBRARY_PATH=/usr/lib/python3/dist-packages:/usr/lib/python3/dist-packages/lxc:$LD_LIBRARY_PATH
-
 language: python
 python:
-    - "3.2"
-    - "3.3"
     - "3.4"
     - "3.5"
 
@@ -16,14 +11,13 @@ before_script:
     - sudo apt-get -qq update
     - sudo apt-get install -t trusty-backports -y lxc python3-lxc lxc-dev
     - echo "$USER veth lxcbr0 10" | sudo tee -a /etc/lxc/lxc-usernet
-    - echo "lxc.id_map = u 0 100000 65536" | sudo tee -a /etc/lxc/default.conf
-    - echo "lxc.id_map = g 0 100000 65536" | sudo tee -a /etc/lxc/default.conf
+    - echo "lxc.id_map = u 0 165536 65536" | sudo tee -a /etc/lxc/default.conf
+    - echo "lxc.id_map = g 0 165536 65536" | sudo tee -a /etc/lxc/default.conf
     - echo -e "/usr/lib/python3/dist-packages\n/usr/lib/python3/dist-packages/lxc" | tee -a $(pip --version | cut -d ' ' -f 4)/lxc.pth
     - cat /etc/sub?id
     - git clone https://github.com/lxc/lxc.git
     - pip install -e `pwd`/lxc/src/python-lxc
     - sudo service lxc restart
-    - ls /usr/lib/python3/dist-packages/lxc
     - mkdir -p $HOME/.config/lxc
     - cp /etc/lxc/default.conf $HOME/.config/lxc/
     - python -m site
