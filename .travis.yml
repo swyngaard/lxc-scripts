@@ -9,19 +9,18 @@ python:
 before_script:
     - echo "deb http://archive.ubuntu.com/ubuntu trusty-backports main" | sudo tee -a /etc/apt/sources.list
     - sudo apt-get -qq update
-    - sudo apt-get install -t trusty-backports -y lxc python3-lxc lxc-dev
+    - sudo apt-get install -t trusty-backports -y lxc lxc-dev
     - echo "$USER veth lxcbr0 10" | sudo tee -a /etc/lxc/lxc-usernet
     - echo "lxc.id_map = u 0 100000 65536" | sudo tee -a /etc/lxc/default.conf
     - echo "lxc.id_map = g 0 100000 65536" | sudo tee -a /etc/lxc/default.conf
-    - echo -e "/usr/lib/python3/dist-packages\n/usr/lib/python3/dist-packages/lxc" | tee -a $(pip --version | cut -d ' ' -f 4)/lxc.pth
     - sudo usermod --add-subuids 100000-165536 $USER
     - sudo usermod --add-subgids 100000-165536 $USER
     - cat /etc/sub?id
     - git clone https://github.com/lxc/lxc.git
     - pip install -e `pwd`/lxc/src/python-lxc
     - sudo service lxc restart
-    - mkdir -p $HOME/.config/lxc
+    - mkdir -p $HOME/.config/lxc $HOME/.local/share/lxc $HOME/.cache/lxc
     - cp /etc/lxc/default.conf $HOME/.config/lxc/
     - python -m site
 
-script: python postgresql.py
+script: ./postgresql.py -v
