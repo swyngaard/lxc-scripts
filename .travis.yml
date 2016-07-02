@@ -10,10 +10,11 @@ addons:
     apt:
         sources:
             - sourceline: 'deb http://archive.ubuntu.com/ubuntu trusty-backports main'
-        packages:
-            - cgmanager/trusty-backports
-            - lxc/trusty-backports
-            - lxc-dev/trusty-backports
+
+before_install:
+    - sudo apt-get -qq update
+    - sudo apt-get install -y -t trusty-backports cgmanager
+    - sudo apt-get install -y -t trusty-backports lxc lxc-dev
 
 before_script:
     - echo "$USER veth lxcbr0 10" | sudo tee -a /etc/lxc/lxc-usernet
