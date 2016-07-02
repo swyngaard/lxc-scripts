@@ -6,12 +6,8 @@ python:
     - "3.4"
     - "3.5"
 
-addons:
-    apt:
-        sources:
-            - sourceline: 'deb http://archive.ubuntu.com/ubuntu trusty-backports main'
-
-script:
+before_script:
+    - echo "deb http://archive.ubuntu.com/ubuntu trusty-backports main" | sudo tee -a /etc/apt/sources.list
     - sudo apt-get -qq update
     - sudo apt-get install -y -t trusty-backports cgmanager libcgmanager0
     - sudo cgm create all $USER
@@ -29,4 +25,5 @@ script:
     - mkdir -p $HOME/.config/lxc $HOME/.local/share/lxc $HOME/.cache/lxc
     - cp /etc/lxc/default.conf $HOME/.config/lxc/
     - pwd
-    - ./postgresql.py -v
+
+script: ./postgresql.py -v
