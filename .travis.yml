@@ -23,4 +23,4 @@ before_script:
     - cp /etc/lxc/default.conf $HOME/.config/lxc/
     - pwd
 
-script: sudo su -p $USER -c "/home/travis/build/swyngaard/scripts/postgresql.py -v"
+script: sudo su -p $USER -c "/home/travis/build/swyngaard/lxc-scripts/postgresql.py -v"
