@@ -17,10 +17,11 @@ before_script:
     - sudo usermod --add-subgids 100000-165536 $USER
     - cat /etc/sub?id
     - git clone https://github.com/lxc/lxc.git
-    - pip install -e `pwd`/lxc/src/python-lxc
+    - pip install -e lxc/src/python-lxc
     - sudo service lxc restart
     - mkdir -p $HOME/.config/lxc $HOME/.local/share/lxc $HOME/.cache/lxc
     - cp /etc/lxc/default.conf $HOME/.config/lxc/
     - python -m site
+    - sudo su - $USER
 
 script: ./postgresql.py -v
