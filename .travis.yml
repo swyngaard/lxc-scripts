@@ -16,6 +16,8 @@ before_script:
     - sudo aptitude install -y -t trusty-backports uidmap
     - sudo usermod --add-subuids 100000-165536 $USER
     - sudo usermod --add-subgids 100000-165536 $USER
+    - sudo usermod --add-subuids 100000-165536 root
+    - sudo usermod --add-subgids 100000-165536 root
     - sudo aptitude install -y -t trusty-backports cgmanager
     - sudo cgm create all $USER
     - sudo cgm chown all $USER $(id -u $USER) $(id -g $USER)
@@ -30,4 +32,6 @@ before_script:
     - cp /etc/lxc/default.conf $HOME/.config/lxc/
     - pwd
 
-script: ./postgresql.py -v
+script:
+    - ./postgresql.py -v
+    - sudo ./postgresql.py -v
