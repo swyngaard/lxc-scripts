@@ -13,7 +13,7 @@ before_script:
     - sudo cgm create all $USER
     - sudo cgm chown all $USER $(id -u $USER) $(id -g $USER)
     - cgm movepid all $USER $$
-    - sudo apt-get install -y -t trusty-backports lxc lxc-dev bridge-utils cgroup-lite cloud-image-utils debootstrap distro-info distro-info-data dnsmasq-base euca2ools genisoimage libaio1 libboost-system1.54.0 libboost-thread1.54.0 liblxc1 libmnl0 libnetfilter-conntrack3 libnspr4 libnss3 libnss3-nssdb librados2 librbd1 libseccomp2 libxslt1.1 lxc-common lxc-templates lxc1 python-distro-info python-lxml python-requestbuilder python-setuptools python3-lxc qemu-utils sharutils uidmap
+    - sudo apt-get install -y -t trusty-backports lxc lxcfs lxc-dev bridge-utils cgroup-lite cloud-image-utils debootstrap distro-info distro-info-data dnsmasq-base euca2ools genisoimage libaio1 libboost-system1.54.0 libboost-thread1.54.0 liblxc1 libmnl0 libnetfilter-conntrack3 libnspr4 libnss3 libnss3-nssdb librados2 librbd1 libseccomp2 libxslt1.1 lxc-common lxc-templates lxc1 python-distro-info python-lxml python-requestbuilder python-setuptools python3-lxc qemu-utils sharutils uidmap
     - echo "$USER veth lxcbr0 10" | sudo tee -a /etc/lxc/lxc-usernet
     - echo "lxc.id_map = u 0 100000 65536" | sudo tee -a /etc/lxc/default.conf
     - echo "lxc.id_map = g 0 100000 65536" | sudo tee -a /etc/lxc/default.conf
