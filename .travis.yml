@@ -16,7 +16,7 @@ before_install:
     - sudo apt-get install -y -t trusty-backports cgmanager
     - sudo cgm create all $USER
     - sudo cgm chown all $USER $(id -u $USER) $(id -g $USER)
-    - cgm movepid all $USER $PPID
+    - cgm movepid all $USER $$
     - sudo apt-get install -y -t trusty-backports lxc lxc-dev
 
 before_script:
