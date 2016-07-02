@@ -8,20 +8,18 @@ python:
 
 before_script:
     - echo "deb http://archive.ubuntu.com/ubuntu trusty-backports main" | sudo tee -a /etc/apt/sources.list
+    - echo "APT::Install-Recommends \"true\";" | sudo tee -a /etc/apt/apt.conf
     - sudo apt-get -qq update
-    - sudo apt-get upgrade -y
-    - sudo apt-get install -y -t trusty-backports cgmanager libcgmanager0
+    - sudo apt-get install -y -t trusty-backports cgmanager
     - sudo cgm create all $USER
     - sudo cgm chown all $USER $(id -u $USER) $(id -g $USER)
     - cgm movepid all $USER $$
-    - sudo apt-get install -y -t trusty-backports lxc lxc-dev bridge-utils cgroup-lite cloud-image-utils debootstrap distro-info distro-info-data dnsmasq-base euca2ools genisoimage libaio1 libboost-system1.54.0 libboost-thread1.54.0 liblxc1 libmnl0 libnetfilter-conntrack3 libnspr4 libnss3 libnss3-nssdb librados2 librbd1 libseccomp2 libxslt1.1 lxc-common lxc-templates lxc1 python-distro-info python-lxml python-requestbuilder python-setuptools python3-lxc qemu-utils sharutils uidmap
-    - sudo apt-get install -y lxcfs/trusty-backports
+    - sudo apt-get install -y -t trusty-backports lxc lxc-dev
     - echo "$USER veth lxcbr0 10" | sudo tee -a /etc/lxc/lxc-usernet
     - echo "lxc.id_map = u 0 100000 65536" | sudo tee -a /etc/lxc/default.conf
     - echo "lxc.id_map = g 0 100000 65536" | sudo tee -a /etc/lxc/default.conf
     - sudo usermod --add-subuids 100000-165536 $USER
     - sudo usermod --add-subgids 100000-165536 $USER
-    - cat /etc/sub?id
     - git clone https://github.com/lxc/lxc.git
     - pip install -e lxc/src/python-lxc
     - mkdir -p $HOME/.config/lxc $HOME/.local/share/lxc $HOME/.cache/lxc
