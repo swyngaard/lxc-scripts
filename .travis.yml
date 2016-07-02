@@ -6,15 +6,19 @@ python:
     - "3.4"
     - "3.5"
 
+addons:
+    apt:
+        sources:
+            - sourceline: 'deb http://archive.ubuntu.com/ubuntu trusty-backports main'
+
 before_script:
-    - echo "deb http://archive.ubuntu.com/ubuntu trusty-backports main" | sudo tee -a /etc/apt/sources.list
     - echo "APT::Install-Recommends \"true\";" | sudo tee -a /etc/apt/apt.conf
-    - sudo apt-get -qq update
+    - sudo apt-get update
     - sudo apt-get install -y -t trusty-backports cgmanager
     - sudo cgm create all $USER
     - sudo cgm chown all $USER $(id -u $USER) $(id -g $USER)
     - cgm movepid all $USER $$
-    - sudo apt-get install -y -t trusty-backports lxc lxc-dev
+    - sudo apt-get install -y -t trusty-backports lxc lxc-dev lxcfs
     - echo "$USER veth lxcbr0 10" | sudo tee -a /etc/lxc/lxc-usernet
     - echo "lxc.id_map = u 0 100000 65536" | sudo tee -a /etc/lxc/default.conf
     - echo "lxc.id_map = g 0 100000 65536" | sudo tee -a /etc/lxc/default.conf
