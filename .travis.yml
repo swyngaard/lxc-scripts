@@ -12,13 +12,12 @@ addons:
             - sourceline: 'deb http://archive.ubuntu.com/ubuntu trusty-backports main'
 
 script:
-    - echo "APT::Install-Recommends \"true\";" | sudo tee -a /etc/apt/apt.conf.d/99zlocal
     - sudo apt-get -qq update
-    - sudo aptitude --with-recommends install -y -t trusty-backports cgmanager
+    - sudo apt-get -o APT::Install-Recommends="true" install -y -t trusty-backports cgmanager
     - sudo cgm create all $USER
     - sudo cgm chown all $USER $(id -u $USER) $(id -g $USER)
     - cgm movepid all $USER $$
-    - sudo aptitude --with-recommends install -y -t trusty-backports lxc lxc-dev
+    - sudo apt-get -o APT::Install-Recommends="true" install -y -t trusty-backports lxc lxc-dev
     - echo "$USER veth lxcbr0 10" | sudo tee -a /etc/lxc/lxc-usernet
     - echo "lxc.id_map = u 0 100000 65536" | sudo tee -a /etc/lxc/default.conf
     - echo "lxc.id_map = g 0 100000 65536" | sudo tee -a /etc/lxc/default.conf
