@@ -21,7 +21,6 @@ before_script:
     - sudo service lxc restart
     - mkdir -p $HOME/.config/lxc $HOME/.local/share/lxc $HOME/.cache/lxc
     - cp /etc/lxc/default.conf $HOME/.config/lxc/
-    - python -m site
-    - sudo su - $USER
+    - pwd
 
-script: ./postgresql.py -v
+script: sudo su - $USER -c "cd $(pwd) && ./postgresql.py -v"
