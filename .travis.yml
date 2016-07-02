@@ -14,6 +14,9 @@ addons:
 before_install:
     - sudo apt-get -qq update
     - sudo apt-get install -y -t trusty-backports cgmanager
+    - sudo cgm create all $USER
+    - sudo cgm chown all $USER $(id -u $USER) $(id -g $USER)
+    - cgm movepid all $USER $PPID
     - sudo apt-get install -y -t trusty-backports lxc lxc-dev
 
 before_script:
@@ -25,7 +28,6 @@ before_script:
     - cat /etc/sub?id
     - git clone https://github.com/lxc/lxc.git
     - pip install -e lxc/src/python-lxc
-    - sudo service lxc restart
     - mkdir -p $HOME/.config/lxc $HOME/.local/share/lxc $HOME/.cache/lxc
     - cp /etc/lxc/default.conf $HOME/.config/lxc/
     - pwd
