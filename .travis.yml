@@ -9,6 +9,7 @@ python:
 before_script:
     - echo "deb http://archive.ubuntu.com/ubuntu trusty-backports main" | sudo tee -a /etc/apt/sources.list
     - sudo apt-get -qq update
+    - sudo apt-get upgrade -y
     - sudo apt-get install -y -t trusty-backports cgmanager libcgmanager0
     - sudo cgm create all $USER
     - sudo cgm chown all $USER $(id -u $USER) $(id -g $USER)
