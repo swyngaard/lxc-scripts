@@ -12,6 +12,7 @@ addons:
             - sourceline: 'deb http://archive.ubuntu.com/ubuntu trusty-backports main'
 
 script:
+    - echo "APT::Install-Recommends \"true\";" | sudo tee -a /etc/apt/apt.conf.d/99zlocal
     - sudo apt-get -qq update
     - sudo aptitude --with-recommends install -y -t trusty-backports cgmanager
     - sudo cgm create all $USER
