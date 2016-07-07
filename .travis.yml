@@ -31,6 +31,7 @@ before_script:
     - mkdir -p $HOME/.config/lxc $HOME/.local/share/lxc $HOME/.cache/lxc
     - cp /etc/lxc/default.conf $HOME/.config/lxc/
     - sudo chmod +x $HOME
+    - sudo chmod +x /var/lib/lxc
 
 script:
     - ./postgresql.py -v
