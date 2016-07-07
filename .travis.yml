@@ -9,7 +9,7 @@ python:
 addons:
     apt:
         sources:
-            - sourceline: 'deb http://archive.ubuntu.com/ubuntu trusty-backports main restricted universe multiverse'
+            - sourceline: 'deb http://archive.ubuntu.com/ubuntu trusty-backports main
 
 before_script:
     - sudo aptitude update
@@ -22,7 +22,7 @@ before_script:
     - sudo cgm create all $USER
     - sudo cgm chown all $USER $(id -u $USER) $(id -g $USER)
     - cgm movepid all $USER $$
-    - sudo aptitude install -y -t trusty-backports bridge-utils cgroup-lite cloud-image-utils debootstrap distro-info distro-info-data dnsmasq-base euca2ools genisoimage libaio1 libboost-system1.54.0 libboost-thread1.54.0 liblxc1 libmnl0 libnetfilter-conntrack3 libnspr4 libnss3 libnss3-nssdb libpam-cgfs librados2 librbd1 libseccomp2 libxslt1.1 lxc lxc-common lxc-dev lxc-templates lxc1 lxcfs python-distro-info python-lxml python-requestbuilder python-setuptools python3-lxc qemu-utils sharutils
+    - sudo aptitude install -y -t trusty-backports lxc lxc-dev
     - echo "$USER veth lxcbr0 10" | sudo tee -a /etc/lxc/lxc-usernet
     - echo "lxc.id_map = u 0 100000 65536" | sudo tee -a /etc/lxc/default.conf
     - echo "lxc.id_map = g 0 100000 65536" | sudo tee -a /etc/lxc/default.conf
@@ -30,7 +30,7 @@ before_script:
     - pip install -e lxc/src/python-lxc
     - mkdir -p $HOME/.config/lxc $HOME/.local/share/lxc $HOME/.cache/lxc
     - cp /etc/lxc/default.conf $HOME/.config/lxc/
-    - pwd
+    - sudo chmod +x $HOME
 
 script:
     - ./postgresql.py -v
