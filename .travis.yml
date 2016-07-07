@@ -9,7 +9,7 @@ python:
 addons:
     apt:
         sources:
-            - sourceline: 'deb http://archive.ubuntu.com/ubuntu trusty-backports main
+            - sourceline: 'deb http://archive.ubuntu.com/ubuntu trusty-backports main'
 
 before_script:
     - sudo aptitude update
