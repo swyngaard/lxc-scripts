@@ -35,4 +35,4 @@ before_script:
 
 script:
     - ./postgresql.py -v
-    - sudo ./postgresql.py -v
+    - ./django.py -v
