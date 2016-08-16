@@ -225,6 +225,8 @@ def main(prefix="test", verbose=False):
 
     run_command("Starting uwsgi service", ["systemctl", "start", "uwsgi"])
 
+    logger("Success!")
+
     output = {"container_name"    : container_name,
               "container_address" : container_address,
               "user_name"         : user_name,
