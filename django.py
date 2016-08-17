@@ -193,7 +193,7 @@ def main(prefix="test", verbose=False):
 
     run_command("Adding user", ["adduser", "--disabled-password", "--gecos", user_info, user_name])
 
-    pipe_command("Setting user password", ["echo", "{}:{}".format(user_name, user_password)], ["chpasswd"], debug=True)
+    pipe_command("Setting user password", ["echo", "{}:{}".format(user_name, user_password)], ["chpasswd"])
 
     run_command("Creating Django project", ["su", "-", user_name, "-c", "django-admin.py startproject {}".format(project_name)])
 
