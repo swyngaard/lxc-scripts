@@ -32,7 +32,9 @@ before_script:
     - cp /etc/lxc/default.conf $HOME/.config/lxc/
     - sudo chmod +x $HOME
     - sudo chmod +x /var/lib/lxc
+    - export PYDEV_SCRIPT=$HOME/.local/share/lxc/test_pydev_jessie/start-pydev
 
 script:
     - ./postgresql.py -v
     - ./django.py -v
+    - ./pydev.py -v && sed -i '/eclipse/c\CMD_LINE="timeout 30s eclipse/eclipse -noSplash"' $PYDEV_SCRIPT && $PYDEV_SCRIPT
