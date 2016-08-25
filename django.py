@@ -172,6 +172,23 @@ def main(prefix="test", verbose=False):
     cleanup_container = lambda: [container.stop(), container.destroy()]
     atexit.register(cleanup_container)
 
+    description = logger("Clearing UID and GID mappings")
+    if not container.clear_config_item("lxc.id_map"):
+        error_exit(description)
+
+    description = logger("Appending new UID and GID mappings")
+    if not (container.append_config_item("lxc.id_map", "u 0 100000 1000") and
+            container.append_config_item("lxc.id_map", "g 0 100000 1000") and
+            container.append_config_item("lxc.id_map", "u 1000 1000 1") and
+            container.append_config_item("lxc.id_map", "g 1000 1000 1") and
+            container.append_config_item("lxc.id_map", "u 1001 101001 64535") and
+            container.append_config_item("lxc.id_map", "g 1001 101001 64535")):
+        error_exit(description)
+
+    description = logger("Saving configuration")
+    if not container.save_config():
+        error_exit(description)
+
     description = logger("Starting container")
     if not container.start():
         error_exit(description)
