@@ -37,4 +37,4 @@ before_script:
 script:
     - ./postgresql.py -v
     - ./django.py -v
-    - ./pydev.py -v && sed -i '/eclipse/c\CMD_LINE="timeout 30s eclipse/eclipse -noSplash"' $PYDEV_SCRIPT && $PYDEV_SCRIPT
+    - ./pydev.py -v

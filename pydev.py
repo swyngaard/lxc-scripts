@@ -172,7 +172,7 @@ def main(prefix="test", verbose=False):
 
     run_command("Installing debian packages", ["apt-get", "install", "-y"] + debian_packages)
 
-    run_command("Installing GUI packages", ["apt-get", "install", "-y"] + gui_packages)
+    run_command("Installing GUI packages", ["apt-get", "install", "--no-install-recommends", "-y"] + gui_packages)
 
     run_command("Installing python packages", ["pip3", "install"] + python_packages)
 
