@@ -33,8 +33,9 @@ before_script:
     - sudo chmod +x $HOME
     - sudo chmod +x /var/lib/lxc
     - export PYDEV_SCRIPT=$HOME/.local/share/lxc/test_pydev_jessie/start-pydev
+    - sudo aptitude install xvfb
 
 script:
     - ./postgresql.py -v
     - ./django.py -v
-    - ./pydev.py -v
+    - ./pydev.py -v && timeout 30s $PYDEV_SCRIPT
