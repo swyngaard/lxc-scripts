@@ -16,8 +16,6 @@ before_script:
     - sudo aptitude install -y -t trusty-backports uidmap
     - sudo usermod --add-subuids 100000-165536 $USER
     - sudo usermod --add-subgids 100000-165536 $USER
-    - sudo usermod --add-subuids 100000-165536 root
-    - sudo usermod --add-subgids 100000-165536 root
     - sudo aptitude install -y -t trusty-backports cgmanager
     - sudo cgm create all $USER
     - sudo cgm chown all $USER $(id -u $USER) $(id -g $USER)
@@ -32,7 +30,12 @@ before_script:
     - cp /etc/lxc/default.conf $HOME/.config/lxc/
     - sudo chmod +x $HOME
     - sudo chmod +x /var/lib/lxc
+    - /sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_99.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :99 -ac -screen 0 1280x1024x16
+    - export DISPLAY=:99.0
+    - export PYDEV_SCRIPT=$HOME/.local/share/lxc/test_pydev_jessie/start-pydev
+    - function timeout_command() { timeout 30 "$@"; local status=$?; if [ $status -ne 124 ]; then return 1; fi; }
 
 script:
     - ./postgresql.py -v
     - ./django.py -v
+    - ./pydev.py -v && timeout_command $PYDEV_SCRIPT

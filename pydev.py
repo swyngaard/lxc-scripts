@@ -1,91 +1,29 @@
 #!/usr/bin/env python3
 
 """
-Create and start a new LXC container running a barebones Django site
+Create a new LXC container with the PyDev IDE installed
 
-usage: django.py [-h] [-v] [prefix]
+usage: pydev.py [-h] [-v] [prefix]
 """
-import lxc, os, sys, string, random, json, atexit, argparse, urllib.request, subprocess
+import lxc, os, sys, string, random, json, atexit, argparse, urllib.request, subprocess, stat
 
-nginx_conf = """
-# the upstream component nginx needs to connect to
-upstream django {{
-    server unix://{0}.sock; # for a file socket
-}}
+start_pydev="""#!/bin/sh
+CONTAINER={}
+CMD_LINE="eclipse/eclipse $*"
 
-# configuration of the server
-server {{
-    # the port your site will be served on
-    listen      80;
-    # the domain name it will serve for
-    server_name {1}; # substitute your machine's IP address or FQDN
-    charset     utf-8;
+STARTED=false
 
-    # max upload size
-    client_max_body_size 75M;   # adjust to taste
+if ! lxc-wait -n $CONTAINER -s RUNNING -t 0; then
+    lxc-start -n $CONTAINER -d
+    lxc-wait -n $CONTAINER -s RUNNING
+    STARTED=true
+fi
 
-    location = /favicon.ico {{ access_log off; log_not_found off; }}
+lxc-attach --clear-env -n $CONTAINER -- sudo -u {} -i env DISPLAY=$DISPLAY $CMD_LINE
 
-    # Django media
-    location /media  {{
-        alias {2}media;  # your Django project's media files - amend as required
-    }}
-
-    location /static {{
-        alias {2}static; # your Django project's static files - amend as required
-    }}
-
-    # Finally, send all non-media requests to the Django server.
-    location / {{
-        uwsgi_pass  django;
-        include     {2}uwsgi_params; # the uwsgi_params file you installed
-    }}
-}}
-
-"""
-
-uwsgi_conf = """
-[uwsgi]
-project         = {0}
-base            = {1}
-
-# Django-related settings
-# the base directory (full path)
-chdir           = %(base)/%(project)
-# Django's wsgi file
-module          = %(project).wsgi
-# the virtualenv (full path)
-#home            = %(base)/%(project)
-
-# process-related settings
-# master
-master          = true
-# maximum number of worker processes
-processes       = 5
-# the socket (use the full path to be safe
-socket          = %(base)/%(project)/%(project).sock
-# ... with appropriate permissions - may be needed
-chmod-socket    = 666
-# clear environment on exit
-vacuum          = true
-daemonize       = /var/log/uwsgi-emperor.log
-"""
-
-uwsgi_service = """
-[Unit]
-Description=uWSGI Emperor
-After=syslog.target
-
-[Service]
-ExecStart=/usr/local/bin/uwsgi --emperor /etc/uwsgi/vassals
-Restart=always
-KillSignal=SIGQUIT
-Type=notify
-StandardError=syslog
-NotifyAccess=all
-
-[Install]
-WantedBy=multi-user.target
+if [ "$STARTED" = "true" ]; then
+    lxc-stop -n $CONTAINER -t 10
+fi
 """
 
 def generate_password(length=8, characters=string.ascii_uppercase+string.ascii_lowercase+string.digits):
@@ -128,9 +66,26 @@ def container_run_command(container, description, command_list, stdin_fd=0, stdo
 
 
 def container_pipe_command(container, description, first_cmd, second_cmd, verbose=False, debug=False):
-
-    with subprocess.Popen(first_cmd, stdout=subprocess.PIPE) as pipe_cmd:
+    stderr_file = None
+    if not debug:
+        stderr_file = subprocess.DEVNULL
+    with subprocess.Popen(first_cmd, stdout=subprocess.PIPE, stderr=stderr_file) as pipe_cmd:
         container_run_command(container, description, second_cmd, stdin_fd=pipe_cmd.stdout, verbose=verbose, debug=debug)
+
+def write_file(file_path, text):
+    try:
+        with open(file_path, 'w') as output:
+            output.write(text)
+    except(OSError, IOError):
+        return False
+    return True
+
+def chmod_file(file_path, permissions):
+    try:
+        os.chmod(file_path, permissions)
+    except(OSError, IOError):
+        return False
+    return True
 
 def main(prefix="test", verbose=False):
     user_name = prefix + "_user"
@@ -139,12 +94,15 @@ def main(prefix="test", verbose=False):
     user_home = "/home/" + user_name
     user_dir = user_home + '/'
 
-    project_name = prefix + "_project"
-    project_path = user_dir + project_name
-    project_dir = project_path + '/'
+    debian_packages = ["python3", "python3-pip", "python3-psycopg2", "adduser", "sudo", "curl", "git"]
+    gui_packages = ["libgtk2.0-0", "libxtst6"]
+    eclipse_repos = ["http://pydev.org/updates", "http://download.eclipse.org/releases/neon"]
+    eclipse_packages = ["org.python.pydev.feature.feature.group", "org.eclipse.egit.feature.group"]
+    python_packages = ["Django==1.10"]
 
-    debian_packages = ["python3", "python3-pip", "python3-psycopg2", "nginx", "adduser"]
-    python_packages = ["uWSGI==2.0.13.1", "Django==1.10"]
+    #TODO find the latest release of java and eclipse
+    java_url = "https://edelivery.oracle.com/otn-pub/java/jdk/8u102-b14/jdk-8u102-linux-x64.tar.gz"
+    eclipse_url = "http://download.eclipse.org/eclipse/downloads/drops4/R-4.6-201606061100/eclipse-platform-4.6-linux-gtk-x86_64.tar.gz"
 
     # Log output to stdout if specified as command line flag (WARNING the list is a hack!)
     logger = lambda text: [print(text + "..."), text][1] if verbose else text
@@ -157,7 +115,9 @@ def main(prefix="test", verbose=False):
     if not debian_release:
         debian_release = "jessie"
 
-    container_name = "{}_django_{}".format(prefix, debian_release)
+    container_name = "{}_pydev_{}".format(prefix, debian_release)
+
+    host_script = os.path.join(os.path.expanduser("~"), ".local", "share", "lxc", container_name, "start-pydev")
 
     container = lxc.Container(container_name)
 
@@ -171,6 +131,10 @@ def main(prefix="test", verbose=False):
     # Stop and destroy container on error (WARNING the list is a hack!)
     cleanup_container = lambda: [container.stop(), container.destroy()]
     atexit.register(cleanup_container)
+
+    description = logger("Appending mount entry to config")
+    if not container.append_config_item("lxc.mount.entry", "/tmp/.X11-unix tmp/.X11-unix none bind,optional,create=dir"):
+        error_exit(description)
 
     description = logger("Clearing UID and GID mappings")
     if not container.clear_config_item("lxc.id_map"):
@@ -193,8 +157,8 @@ def main(prefix="test", verbose=False):
     if not container.start():
         error_exit(description)
 
-    description = logger("Getting IP address")
     # Wait for connectivity
+    description = logger("Getting IP address")
     container_address = container.get_ips(timeout=120)[0]
     if not container_address:
         error_exit(description)
@@ -202,9 +166,13 @@ def main(prefix="test", verbose=False):
     run_command = lambda desc, cmd, debug=False: container_run_command(container, desc, cmd, verbose=verbose, debug=debug)
     pipe_command = lambda desc, cmd0, cmd1, debug=False: container_pipe_command(container, desc, cmd0, cmd1, verbose=verbose, debug=debug)
 
+    run_command("Unmouting X11 directory", ["umount", "/tmp/.X11-unix"])
+
     run_command("Updating apt", ["apt-get", "update"])
 
     run_command("Installing debian packages", ["apt-get", "install", "-y"] + debian_packages)
+
+    run_command("Installing GUI packages", ["apt-get", "install", "--no-install-recommends", "-y"] + gui_packages)
 
     run_command("Installing python packages", ["pip3", "install"] + python_packages)
 
@@ -212,35 +180,29 @@ def main(prefix="test", verbose=False):
 
     pipe_command("Setting user password", ["echo", "{}:{}".format(user_name, user_password)], ["chpasswd"])
 
-    run_command("Creating Django project", ["su", "-", user_name, "-c", "django-admin.py startproject {}".format(project_name)])
+    # This command is needed to squash the sudo warning when executing the startup script
+    run_command("Appending container name to /etc/hosts", ["bash", "-c", 'echo "127.0.1.1       {}" >> /etc/hosts'.format(container_name)])
 
-    run_command("Appending configuration to settings.py", ["su", "-", user_name, "-c", 'echo "STATIC_ROOT = os.path.join(BASE_DIR, \'static\') + os.sep" >> {}'.format(project_dir+project_name+"/settings.py")])
+    pipe_command("Downloading and extracting Java JDK", ["bash", "-c", 'curl -L -H "Cookie: oraclelicense=accept-securebackup-cookie" -k "{}"'.format(java_url)], ["su", "-", user_name, "-c", "mkdir {0} && tar xz -C {0} --strip-components 1".format("jdk")])
 
-    run_command("Updating static files configuration", ["su", "-", user_name, "-c", "cd {} && python3 manage.py collectstatic --noinput".format(project_name)])
+    pipe_command("Downloading and extracting Eclipse IDE", ["bash", "-c", 'curl -L -k "{}"'.format(eclipse_url)], ["su", "-", user_name, "-c", "tar xz"])
 
-    run_command("Creating media directory", ["su", "-", user_name, "-c", "mkdir {}".format(project_dir+"media")])
+    # Escape the newline character so that it isn't interpreted by python but only by sed
+    run_command("Updating Eclipse configuration", ["su", "-", user_name, "-c", 'sed -i "/-vmargs/i-data\\n{0}/workspace\\n-vm\\n{0}/jdk/bin/java" eclipse/eclipse.ini'.format(user_home)])
 
-    run_command("Creating nginx configuration file", ["su", "-", user_name, "-c", 'echo "{}" > {}'.format(nginx_conf.format(project_dir+project_name, container_address, project_dir), project_dir+project_name+"_nginx.conf")])
+    run_command("Installing PyDev", ["su", "-", user_name, "-c", "eclipse/eclipse -application org.eclipse.equinox.p2.director -noSplash -repository {} -installIU {}".format(','.join(eclipse_repos), ','.join(eclipse_packages))])
 
-    run_command("Copying nginx uwsgi parameter file", ["su", "-", user_name, "-c", "cp /etc/nginx/uwsgi_params {}".format(project_dir)])
+    description = logger("Writing startup script")
+    if not write_file(host_script, start_pydev.format(container_name, user_name)):
+        error_exit(description)
 
-    run_command("Removing default site", ["rm", "-f", "/etc/nginx/sites-enabled/default"])
+    description = logger("Making script executable")
+    if not chmod_file(host_script, stat.S_IRWXU | stat.S_IRGRP | stat.S_IROTH):
+        error_exit(description)
 
-    run_command("Setting site status to active", ["ln", "-s", project_dir+project_name+"_nginx.conf", "/etc/nginx/sites-enabled/"])
-
-    run_command("Restarting nginx", ["systemctl", "restart", "nginx"])
-
-    run_command("Creating uwsgi configuration file", ["su", "-", user_name, "-c", 'echo "{}" > {}'.format(uwsgi_conf.format(project_name, user_home), project_dir+project_name+"_uwsgi.ini")])
-
-    run_command("Creating uwsgi configuration directory", ["mkdir", "-p", "/etc/uwsgi/vassals"])
-
-    run_command("Linking uwsgi configuration", ["ln", "-s", project_dir+project_name+"_uwsgi.ini", "/etc/uwsgi/vassals/"])
-
-    run_command("Creating uwsgi service", ["bash", "-c", 'echo "{}" > {};'.format(uwsgi_service, "/lib/systemd/system/uwsgi.service")])
-
-    run_command("Activating uwsgi service", ["systemctl", "enable", "uwsgi"])
-
-    run_command("Starting uwsgi service", ["systemctl", "start", "uwsgi"])
+    description = logger("Stopping container")
+    if not container.stop():
+        error_exit(description)
 
     logger("Success!")
 
@@ -248,7 +210,7 @@ def main(prefix="test", verbose=False):
               "container_address" : container_address,
               "user_name"         : user_name,
               "user_password"     : user_password,
-              "project_path"      : project_path}
+              "startup_script"    : host_script}
 
     # Output details as JSON
     print(json.dumps(output, sort_keys=True, indent=4))
@@ -257,8 +219,8 @@ def main(prefix="test", verbose=False):
     atexit.unregister(cleanup_container)
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Create and start a new LXC container running a Django app")
+    parser = argparse.ArgumentParser(description="Create a new LXC container with the PyDev IDE installed")
     parser.add_argument("-v", "--verbose", action="store_true", help="display additional information to stdout")
-    parser.add_argument("prefix", nargs='?', default="test", help="Specify a prefix for the container name. The resulting container name will be prefix_django_jessie. The default prefix is test.")
+    parser.add_argument("prefix", nargs='?', default="test", help="Specify a prefix for the container name. The resulting container name will be prefix_pydev_jessie. The default prefix is test.")
     args = vars(parser.parse_args())
     main(prefix=args["prefix"], verbose=args["verbose"])
