@@ -37,4 +37,5 @@ before_script:
 script:
     - ./postgresql.py -v
     - ./django.py -v
-    - ./pydev.py -v && timeout 30s $PYDEV_SCRIPT
+    - ./pydev.py -v
+    - timeout 30s $PYDEV_SCRIPT
