@@ -96,8 +96,8 @@ def main(prefix="test", verbose=False):
 
     debian_packages = ["python3", "python3-pip", "python3-psycopg2", "adduser", "sudo", "curl", "git"]
     gui_packages = ["libgtk2.0-0", "libxtst6"]
-    eclipse_repos = ["http://pydev.org/updates", "http://download.eclipse.org/releases/neon"]
-    eclipse_packages = ["org.python.pydev.feature.feature.group", "org.eclipse.egit.feature.group"]
+    eclipse_repos = ["http://pydev.org/updates", "http://download.eclipse.org/releases/neon", "http://eclipse.kacprzak.org/updates"]
+    eclipse_packages = ["org.python.pydev.feature.feature.group", "org.eclipse.egit.feature.group", "org.eclipse.tm.terminal.feature.feature.group", "org.kacprzak.eclipse.django.feature.feature.group"]
     python_packages = ["Django==1.10"]
 
     #TODO find the latest release of java and eclipse
