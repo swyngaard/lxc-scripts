@@ -143,7 +143,7 @@ def main(prefix="test", verbose=False):
     project_path = user_dir + project_name
     project_dir = project_path + '/'
 
-    debian_packages = ["python3", "python3-pip", "python3-psycopg2", "nginx", "adduser", "openssh-server"]
+    debian_packages = ["python3", "python3-pip", "python3-psycopg2", "nginx", "adduser", "openssh-server", "zlib1g-dev", "libjpeg62-turbo-dev"]
     python_packages = ["uWSGI==2.0.13.1", "Django==1.10", "Pillow==3.4.2", "openpyxl==2.4.1"]
 
     # Log output to stdout if specified as command line flag (WARNING the list is a hack!)
